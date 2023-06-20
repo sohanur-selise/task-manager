@@ -9,14 +9,15 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 import datetime
+from tasks.api.paginate import StandardResultsSetPagination
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
+    queryset = Task.objects.all().order_by('-id')
     serializer_class = TaskSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.AllowAny,)
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         queryset = self.queryset
@@ -53,7 +54,15 @@ class TaskViewSet(viewsets.ModelViewSet):
         if self.request.user.role != 'admin':
             queryset = queryset.filter(Q(assigned_by=self.request.user) | Q(assignee=self.request.user))
         serializer = self.serializer_class(queryset, many=True)
-        return responses.success(serializer.data)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            pagination = True
+            serializer = self.serializer_class(
+                page, context={"request": request}, many=True
+            )
+            response = self.get_paginated_response(serializer.data)
+            return responses.success(response.data)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -88,9 +97,10 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.all().order_by('-id')
     serializer_class = CommentSerializer
     authentication_classes = (TokenAuthentication,)
+    pagination_class = StandardResultsSetPagination
 
     def get_permissions(self):
         permission_classes = (permissions.IsAuthenticated,)
@@ -117,6 +127,14 @@ class CommentViewSet(viewsets.ModelViewSet):
         task_id = kwargs.get('task_id')
         comments = self.queryset.filter(task_id=task_id)
         serializer = self.get_serializer(comments, many=True)
+        page = self.paginate_queryset(comments)
+        if page is not None:
+            pagination = True
+            serializer = self.serializer_class(
+                page, context={"request": request}, many=True
+            )
+            response = self.get_paginated_response(serializer.data)
+            return responses.success(response.data)
         return responses.success(serializer.data)
 
     def update(self, request, *args, **kwargs):
