@@ -1,8 +1,8 @@
+import json
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from users.models import User
 from users.api.views import CustomObtainAuthToken, UserViewSet
-import json
 
 
 class UserViewSetTestCase(TestCase):
@@ -15,7 +15,6 @@ class UserViewSetTestCase(TestCase):
         request = self.factory.get('/users/list')
         response = view(request)
         self.assertEqual(response.status_code, 200)
-        # Add assertions for the expected response data
 
     def test_retrieve_user(self):
         view = UserViewSet.as_view({'get': 'retrieve'})
@@ -23,7 +22,6 @@ class UserViewSetTestCase(TestCase):
         force_authenticate(request, user=self.user)  # authenticate the request
         response = view(request, pk=1)
         self.assertEqual(response.status_code, 200)
-        # Add assertions for the expected response data
 
     def test_create_user(self):
         view = UserViewSet.as_view({'post': 'create'})
@@ -37,7 +35,6 @@ class UserViewSetTestCase(TestCase):
         })
         response = view(request)
         self.assertEqual(response.status_code, 200)
-        # Add assertions for the expected response data
 
 
 class CustomObtainAuthTokenTestCase(TestCase):
