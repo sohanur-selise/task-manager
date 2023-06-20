@@ -7,3 +7,6 @@ https://www.postman.com/universal-rocket-432764/workspace/task-manager/folder/20
 Build Application:
 
 `docker-compose up --build`
+
+Swagger Documentations: <br><br>
+**http://127.0.0.1:8000/swagger/**
