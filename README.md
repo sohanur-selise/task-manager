@@ -5,4 +5,5 @@ https://www.postman.com/universal-rocket-432764/workspace/task-manager/folder/20
 
 
 Build Application:
-docker-compose up --build 
+
+`docker-compose up --build`
